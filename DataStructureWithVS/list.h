@@ -15,61 +15,80 @@ private:
 	Node<Elem>* next;
 
 public:
-	Node() :Node(data) 
-	{
-		memset(&data, 0, sizeof(Elem)); 
-	}
 	Node(Elem data, Node<Elem>* prev = nullptr, Node<Elem>* next = nullptr) 
 	{
 		this->data = data;
 		this->prev = prev;
 		this->next = next;
 	}
-
+	Node() : Node(data) { memset(&data, 0, sizeof(Elem)); }
 	Node<Elem>& setData(Elem data) 
 	{ 
 		this->data = data; 
 		return *this;
 	}
+	Node<Elem>& setPrev(Node<Elem>* prev)
+	{
+		if (prev != nullptr)
+		{
+			this->prev = prev;
+			prev->next = this;
+		}
+		else if (this->prev != nullptr)
+		{
+			this->prev->next = nullptr;
+			this->prev = nullptr;
+		}
+		return *this;
+	}
+	Node<Elem>& setNext(Node<Elem>* next)
+	{
+		if (next != nullptr)
+		{
+			this->next = next;
+			next->prev = this;
+		}
+		else if (this->next != nullptr)
+		{
+			this->next->prev = nullptr;
+			this->next = nullptr;
+		}
+		return *this;
+	}
+
 	Elem getData() { return data; }
-	Node<Elem>& setPrev(Node<Elem>*)
-	{
-		this->prev = prev;
-		return *this;
-	}
-
-	Node<Elem>& setNext(Node<Elem>*)
-	{
-		this->next = next;
-		return *this;
-	}
-
-	Node<Elem>* getPrev()
-	{
-		return prev;
-	}
-
-	Node<Elem>* getNext()
-	{
-		return next;
-	}
-
-	static Node<Elem>* newInstance()
-	{
-		return new Node<Elem>;
-	}
+	Node<Elem>* getPrev() { return prev; }
+	Node<Elem>* getNext() { return next; }
 
 	static Node<Elem>* newInstance(Elem data, Node<Elem>* prev = nullptr, Node<Elem>* next = nullptr)
 	{
 		return new Node<Elem>(data, prev, next);
 	}
-
+	static Node<Elem>* newInstance() { return new Node<Elem>; }
 	static void destroyInstance(Node<Elem>* node)
 	{
 		if (node != nullptr)
 			delete node;
 	}
 
+	friend std::ostream& operator<<(std::ostream& os, Node<Elem>& node)
+	{
+		cout << "[NodeInfo]" << endl;
+		cout << "data: " << node.getData() << endl;
+		cout << "prev: ";
+		if (node.getPrev() == nullptr)
+			cout << "nullptr" << endl;
+		else
+			cout << node.getPrev()->getData() << endl;
+		cout << "next: ";
+		if (node.getNext() == nullptr)
+			cout << "nullptr" << endl;
+		else
+			cout << node.getNext()->getData() << endl;
+		cout << endl;
+
+		return os;
+	}
 };
 
 template <typename Elem>
@@ -110,7 +129,8 @@ public:
 	//data 추가
 	List<Elem>& add_last(Elem data)
 	{
-		tail->setNext(Node<Elem>::newInstance(data, tail));
+		Node<Elem>* newNode = Node<Elem>::newInstance(data);
+		tail->setNext(newNode);
 		tail = tail->getNext();
 		m_size++;
 		return *this;
@@ -118,10 +138,15 @@ public:
 	//data 추가
 	List<Elem>& add_first(Elem data)
 	{
-		head->setNext(Node<Elem>::newInstance(data, head, head->getNext()));
-		head->getNext()->getNext()->setPrev(head->getNext());
+		Node<Elem>* newNode = Node<Elem>::newInstance(data);
+		newNode->setNext(head->getNext());
+		newNode->setPrev(head);
 		m_size++;
 		return *this;
+	}
+	Elem peek_prevAccessedData()
+	{
+		return iter->getData();
 	}
 	void delete_prevAccessedData()
 	{
@@ -129,8 +154,7 @@ public:
 		if (delTarget == tail)
 			tail = tail->getPrev();
 		iter = iter->getPrev();
-		delTarget->getPrev()->setNext(delTarget->getNext());
-		delTarget->getNext()->setPrev(delTarget->getPrev());
+		iter->setNext(delTarget->getNext());
 		Node<Elem>::destroyInstance(delTarget);
 		m_size--;
 	}
