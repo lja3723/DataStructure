@@ -117,38 +117,34 @@ private:
 	Node<Elem>* tail;
 	Node<Elem>* iter;
 	unsigned int m_size;
+	bool (*comp)(const Elem& d1, const Elem& d2); //삽입 기준
+	bool isRecentAccessNextDirect;
 
-	Elem EmptyData()
-	{
-		Elem empty;
-		std::memset(&empty, 0, sizeof(Elem));
-		return empty;
-	}
 public:
-	List()
+	List(bool (*sortRule)(const Elem& d1, const Elem& d2) = nullptr)
 	{
-		//head와 tail이 각각의 더미 노드를 가리키도록 설정
+		//head와 tail이 각각 독립된 더미 노드를 가리킨다
 		head = Node<Elem>::newInstance();
-		tail = Node<Elem>::newInstance();
+		tail = Node<Elem>::newInstance(); 
 		iter = head;
-		head->setNext(tail);
 
+		head->setNext(tail);
 		m_size = 0;
+		comp = sortRule;
+		isRecentAccessNextDirect = true;
 	}
 	~List()
 	{
-		//더미노드를 만날 때까지 노드 제거
-		while (head != tail)
-		{
-			Node<Elem>* delTarget = tail;
-			//tail을 한칸 이전으로 옮기면서 tail의 next 연결 해제
-			tail = tail->getPrev();
-			tail->setNext(nullptr);
-			//이전에 tail이 가리킨 노드 삭제
-			Node<Elem>::destroyInstance(delTarget);
-		} 
+		//데이터 노드 제거
+		setIterFirst();
+		while (isNextDataExist()) {
+			getNextData();
+			removeAccessedData();
+		}
+
 		//더미노드 제거
 		Node<Elem>::destroyInstance(head);
+		Node<Elem>::destroyInstance(tail);
 	}
 
 	void printIterNode()
@@ -160,17 +156,41 @@ public:
 	bool isEmpty() { return m_size == 0; }
 
 	//data 추가
-	List<Elem>& add_last(Elem data)
+	List<Elem>& insert(Elem data)
 	{
+		//정렬 기준 없는 경우 뒤에 데이터 추가
+		if (comp == nullptr)
+			return addLast(data);
+		else
+		{
+			setIterFirst();
+			while (isNextDataExist())
+			{
+				if (comp(data, getNextData()) )
+			}
+			// temp
+			addLast(data);
+			return *this;
+		}
+	}
+	List<Elem>& addLast(Elem data)
+	{
+		//정렬기준 마련된 경우 삽입 수행
+		if (comp != nullptr)
+			return insert(data);
+
 		Node<Elem>* newNode = Node<Elem>::newInstance(data);
-		tail->setNext(newNode);
-		tail = tail->getNext();
+		newNode->setPrev(tail->getPrev());
+		newNode->setNext(tail);
 		m_size++;
 		return *this;
 	}
-	//data 추가
-	List<Elem>& add_first(Elem data)
+	List<Elem>& addFirst(Elem data)
 	{
+		//정렬기준 마련된 경우 삽입 수행
+		if (comp != nullptr)
+			return insert(data);
+
 		Node<Elem>* newNode = Node<Elem>::newInstance(data);
 		newNode->setNext(head->getNext());
 		newNode->setPrev(head);
@@ -183,16 +203,33 @@ public:
 	}
 	Elem removeAccessedData()
 	{
+		//accessedData가 없는 경우
 		if (iter == head || iter == tail) 
 			return iter->getData();
 
+		//delTarget 설정
 		Node<Elem>* delTarget = iter;
-		if (delTarget == tail)
-			tail = tail->getPrev();
-		iter = iter->getPrev();
-		iter->setNext(delTarget->getNext());
+		Elem removedData = iter->getData();
+		
+		//최근 데이터 엑세스가 다음 방향인 경우
+		if (isRecentAccessNextDirect)
+		{ 
+			//iter를 한칸 이전으로 옮기고 iter의 next를 delTarget의 next로 설정
+			iter = iter->getPrev();
+			iter->setNext(delTarget->getNext()); 
+			//이후 delTarget의 prev와 next는 모두 nullptr이 됨
+		}
+		else //이전 방향인 경우
+		{
+			//iter를 한칸 이후로 옮기고 iter의 prev를 delTarget의 prev로 설정
+			iter = iter->getNext();
+			iter->setPrev(delTarget->getPrev());
+			//이후 delTarget의 prev와 next는 모두 nullptr이 됨
+		}
 		Node<Elem>::destroyInstance(delTarget);
 		m_size--;
+
+		return removedData;
 	}
 
 	void setIterFirst()		{ iter = head; }
@@ -201,6 +238,7 @@ public:
 	bool isPrevDataExist() { return iter->getPrev() != head && iter != head; }
 	Elem getNextData()		
 	{
+		isRecentAccessNextDirect = true;
 		if (iter != tail)
 			iter = iter->getNext();
 
@@ -208,6 +246,7 @@ public:
 	}
 	Elem getPrevData()		
 	{
+		isRecentAccessNextDirect = false;
 		if (iter != head)
 			iter = iter->getPrev();
 

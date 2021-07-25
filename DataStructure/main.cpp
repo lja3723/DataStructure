@@ -46,9 +46,9 @@ int main()
 
 	for (int i = 0; i < wordsSize; i++)
 		if ((i + 1) % 4 == 0)
-			list.add_first(words[i]);
+			list.addFirst(words[i]);
 		else
-			list.add_last(words[i]);
+			list.addLast(words[i]);
 
 	while (list.isNextDataExist())
 	{
@@ -56,11 +56,10 @@ int main()
 	}
 	cout << "\n\n";
 
-	list.getFirstData();
-	list.printIterNode();
-	while (list.isNextDataExist())
+	list.setIterLast();
+	while (list.isPrevDataExist())
 	{
-		list.getNextData();
+		list.getPrevData();
 		list.printIterNode();
 	}
 
