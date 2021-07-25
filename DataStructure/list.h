@@ -117,11 +117,21 @@ private:
 	Node<Elem>* tail;
 	Node<Elem>* iter;
 	unsigned int m_size;
+
+	Elem EmptyData()
+	{
+		Elem empty;
+		std::memset(&empty, 0, sizeof(Elem));
+		return empty;
+	}
 public:
 	List()
 	{
-		//head와 tail이 더미 노드를 가리키도록 설정
-		head = tail = iter = Node<Elem>::newInstance();
+		//head와 tail이 각각의 더미 노드를 가리키도록 설정
+		head = Node<Elem>::newInstance();
+		tail = Node<Elem>::newInstance();
+		iter = head;
+		head->setNext(tail);
 
 		m_size = 0;
 	}
@@ -167,13 +177,15 @@ public:
 		m_size++;
 		return *this;
 	}
-	Elem peek_prevAccessedData()
+	Elem getAccessedData()
 	{
 		return iter->getData();
 	}
-	void delete_prevAccessedData()
+	Elem removeAccessedData()
 	{
-		if (iter == head) return;
+		if (iter == head || iter == tail) 
+			return iter->getData();
+
 		Node<Elem>* delTarget = iter;
 		if (delTarget == tail)
 			tail = tail->getPrev();
@@ -183,17 +195,22 @@ public:
 		m_size--;
 	}
 
-	void iterReset() { iter = head; }
-	bool isNextDataExist() { return iter->getNext() != nullptr; }
-	bool isPrevDataExist() { return iter->getPrev() != nullptr && iter->getPrev() != head; }
-	Elem getNextData() 
+	void setIterFirst()		{ iter = head; }
+	void setIterLast()		{ iter = tail; }
+	bool isNextDataExist() { return iter->getNext() != tail && iter != tail; }
+	bool isPrevDataExist() { return iter->getPrev() != head && iter != head; }
+	Elem getNextData()		
 	{
-		iter = iter->getNext();
-		return iter->getData();
+		if (iter != tail)
+			iter = iter->getNext();
+
+		return iter->getData(); 
 	}
-	Elem getPrevData()
+	Elem getPrevData()		
 	{
-		iter = iter->getPrev();
+		if (iter != head)
+			iter = iter->getPrev();
+
 		return iter->getData();
 	}
 };

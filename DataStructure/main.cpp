@@ -56,7 +56,7 @@ int main()
 	}
 	cout << "\n\n";
 
-	list.iterReset();
+	list.getFirstData();
 	list.printIterNode();
 	while (list.isNextDataExist())
 	{
