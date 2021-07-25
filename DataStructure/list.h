@@ -173,6 +173,7 @@ public:
 	}
 	void delete_prevAccessedData()
 	{
+		if (iter == head) return;
 		Node<Elem>* delTarget = iter;
 		if (delTarget == tail)
 			tail = tail->getPrev();

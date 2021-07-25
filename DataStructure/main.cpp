@@ -45,9 +45,6 @@ int main()
 	int wordsSize = sizeof(words) / sizeof(*words);
 
 	for (int i = 0; i < wordsSize; i++)
-		words[i].order = i + 1;
-
-	for (int i = 0; i < wordsSize; i++)
 		if ((i + 1) % 4 == 0)
 			list.add_first(words[i]);
 		else
