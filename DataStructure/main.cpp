@@ -2,33 +2,68 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <Windows.h>
 
 using std::cout;
 using std::endl;
 
 int main()
 {
-	List<int> list;
+	List<std::string> list;
 
-	for (int i = 0; i < 30; i++)
-		if ((i + 1) % 7 == 0)
-			list.add_first(i + 1);
+	std::string words[] = {
+		"capacity",
+		"lower",
+		"macintochi",
+		"bistonic",
+		"navy",
+		"level",
+		"coinsident",
+		"medic",
+		"harmful",
+		"digit",
+		"gravity",
+		"windstorm"
+	};
+	int wordsSize = sizeof(words) / sizeof(*words);
+
+	for (int i = 0; i < wordsSize; i++)
+		if ((i + 1) % 4 == 0)
+			list.add_first(words[i]);
 		else
-			list.add_last(i + 1);
+			list.add_last(words[i]);
 
 	while (list.isNextDataExist())
 	{
 		cout << list.getNextData() << " ";
-		//if (list.peek_prevAccessedData() % 4 == 0)
-			//list.delete_prevAccessedData();
 	}
+	cout << "\n\n";
 
-	//cout << endl << list.size() << endl;
+	while (1)
+	{
+		char c = getchar();
 
-	//list.iterReset();
-	//while (list.isNextDataExist())
-	//{
-	//	cout << list.getNextData() << " ";
-	//}
+		if (c == 'c')
+		{
+			if (list.isPrevDataExist())
+			{
+				list.getPrevData();
+				//list.
+			}
+		}
+
+		if (c == 'v')
+		{
+
+		}
+
+		list.iterReset();
+		list.printIterNode();
+		while (list.isNextDataExist())
+		{
+			list.getNextData();
+			list.printIterNode();
+		}
+	}
 	return 0;
 }  

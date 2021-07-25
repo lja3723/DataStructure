@@ -3,9 +3,6 @@
 #include <cstring>
 #include <iostream>
 
-using std::cout;
-using std::endl;
-
 template <typename Elem>
 class Node
 {
@@ -15,45 +12,58 @@ private:
 	Node<Elem>* next;
 
 public:
-	Node(Elem data, Node<Elem>* prev = nullptr, Node<Elem>* next = nullptr) 
+	Node(Elem data, Node<Elem>* prev = nullptr, Node<Elem>* next = nullptr)
 	{
 		this->data = data;
 		this->prev = prev;
 		this->next = next;
 	}
 	Node() : Node(data) { memset(&data, 0, sizeof(Elem)); }
-	Node<Elem>& setData(Elem data) 
+	void setData(Elem data) 
 	{ 
 		this->data = data; 
-		return *this;
 	}
-	Node<Elem>& setPrev(Node<Elem>* prev)
+	void setPrev(Node<Elem>* prev)
 	{
+		//prev가 nullptr이 아닌 경우
 		if (prev != nullptr)
 		{
-			this->prev = prev;
+			//prev->next가 존재하는 경우
+			//prev->next의 prev를 연결 해제
+			if (prev->next != nullptr)
+				prev->next->prev = nullptr;
+
+			//prev의 next를 this로 설정
 			prev->next = this;
 		}
-		else if (this->prev != nullptr)
-		{
+
+		//this->prev가 연결된 경우
+		//this->prev의 next를 연결 해제
+		if (this->prev != nullptr)
 			this->prev->next = nullptr;
-			this->prev = nullptr;
-		}
-		return *this;
+
+		this->prev = prev;
 	}
-	Node<Elem>& setNext(Node<Elem>* next)
+	void setNext(Node<Elem>* next)
 	{
-		if (next != nullptr)
+		//next가 nullptr이 아닌 경우
+		if (next != nullptr) 
 		{
-			this->next = next;
+			//next->prev가 존재하는 경우
+			//next->prev의 next를 연결 해제
+			if (next->prev != nullptr)
+				next->prev->next = nullptr;
+
+			//next의 prev를 this로 설정
 			next->prev = this;
 		}
-		else if (this->next != nullptr)
-		{
+
+		//this->next가 연결된 경우
+		//this->next의 prev를 연결 해제
+		if (this->next != nullptr)
 			this->next->prev = nullptr;
-			this->next = nullptr;
-		}
-		return *this;
+
+		this->next = next;
 	}
 
 	Elem getData() { return data; }
@@ -71,20 +81,28 @@ public:
 			delete node;
 	}
 
+	//Node 출력
 	friend std::ostream& operator<<(std::ostream& os, Node<Elem>& node)
 	{
+		using std::cout;
+		using std::endl;
+
 		cout << "[NodeInfo]" << endl;
-		cout << "data: " << node.getData() << endl;
-		cout << "prev: ";
+
+		cout << "prevData-> ";
 		if (node.getPrev() == nullptr)
-			cout << "nullptr" << endl;
+			cout << "(nullptr)";
 		else
-			cout << node.getPrev()->getData() << endl;
-		cout << "next: ";
+			cout << node.getPrev()->getData();
+		cout << endl;
+
+		cout << "thisData:  " << node.getData() << endl;
+
+		cout << "nextData-> ";
 		if (node.getNext() == nullptr)
-			cout << "nullptr" << endl;
+			cout << "(nullptr)";
 		else
-			cout << node.getNext()->getData() << endl;
+			cout << node.getNext()->getData();
 		cout << endl;
 
 		return os;
@@ -121,6 +139,11 @@ public:
 		} 
 		//더미노드 제거
 		Node<Elem>::destroyInstance(head);
+	}
+
+	void printIterNode()
+	{
+		std::cout << *iter << std::endl;
 	}
 
 	unsigned int size() { return m_size; }
@@ -161,9 +184,15 @@ public:
 
 	void iterReset() { iter = head; }
 	bool isNextDataExist() { return iter->getNext() != nullptr; }
+	bool isPrevDataExist() { return iter->getPrev() != nullptr && iter->getPrev() != head; }
 	Elem getNextData() 
 	{
 		iter = iter->getNext();
+		return iter->getData();
+	}
+	Elem getPrevData()
+	{
+		iter = iter->getPrev();
 		return iter->getData();
 	}
 };
