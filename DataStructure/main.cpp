@@ -7,25 +7,45 @@
 using std::cout;
 using std::endl;
 
+class OrderedString
+{
+public:
+	std::string str;
+	int order;
+	OrderedString(std::string m_str = "", int m_order = 0)
+		: str(m_str), order(m_order) {}
+
+	OrderedString(const char* str) { this->str = str; }
+
+	friend std::ostream& operator<<(std::ostream& os, const OrderedString& inst)
+	{
+		os << inst.order << ". " << inst.str << ";";
+		return os;
+	}
+};
+
 int main()
 {
-	List<std::string> list;
+	List<OrderedString> list;
 
-	std::string words[] = {
-		"capacity",
-		"lower",
-		"macintochi",
-		"bistonic",
-		"navy",
-		"level",
-		"coinsident",
-		"medic",
-		"harmful",
-		"digit",
-		"gravity",
-		"windstorm"
+	OrderedString words[] = {
+		{"capacity",	1},
+		{"lower",		2},
+		{"macintochi",	3},
+		{"bistonic",	4},
+		{"navy",		5},
+		{"level",		6},
+		{"coinsident",	7},
+		{"medic",		8},
+		{"harmful",		9},
+		{"digit",		10},
+		{"gravity",		11},
+		{"windstorm",	12}
 	};
 	int wordsSize = sizeof(words) / sizeof(*words);
+
+	for (int i = 0; i < wordsSize; i++)
+		words[i].order = i + 1;
 
 	for (int i = 0; i < wordsSize; i++)
 		if ((i + 1) % 4 == 0)
@@ -39,31 +59,13 @@ int main()
 	}
 	cout << "\n\n";
 
-	while (1)
+	list.iterReset();
+	list.printIterNode();
+	while (list.isNextDataExist())
 	{
-		char c = getchar();
-
-		if (c == 'c')
-		{
-			if (list.isPrevDataExist())
-			{
-				list.getPrevData();
-				//list.
-			}
-		}
-
-		if (c == 'v')
-		{
-
-		}
-
-		list.iterReset();
+		list.getNextData();
 		list.printIterNode();
-		while (list.isNextDataExist())
-		{
-			list.getNextData();
-			list.printIterNode();
-		}
 	}
+
 	return 0;
 }  
