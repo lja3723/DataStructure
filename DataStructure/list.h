@@ -117,11 +117,11 @@ private:
 	Node<Elem>* tail;
 	Node<Elem>* iter;
 	unsigned int m_size;
-	bool (*comp)(const Elem& d1, const Elem& d2); //삽입 기준
+	int (*comp)(const Elem& d1, const Elem& d2); //삽입 기준
 	bool isRecentAccessNextDirect;
 
 public:
-	List(bool (*sortRule)(const Elem& d1, const Elem& d2) = nullptr)
+	List(int (*sortRule)(const Elem& d1, const Elem& d2) = nullptr)
 	{
 		//head와 tail이 각각 독립된 더미 노드를 가리킨다
 		head = Node<Elem>::newInstance();
@@ -166,10 +166,17 @@ public:
 			setIterFirst();
 			while (isNextDataExist())
 			{
-				if (comp(data, getNextData()) )
+				if (comp(data, getNextData()) < 0)
+				{
+					iter = iter->getPrev();
+					break;
+				}
 			}
-			// temp
-			addLast(data);
+
+			Node<Elem>* newNode = Node<Elem>::newInstance(data);
+			newNode->setNext(iter->getNext());
+			newNode->setPrev(iter);
+
 			return *this;
 		}
 	}
@@ -251,6 +258,19 @@ public:
 			iter = iter->getPrev();
 
 		return iter->getData();
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, List<Elem>& list)
+	{
+		using std::cout;
+		using std::endl;
+		cout << "\n[ ";
+		list.setIterFirst();
+		while (list.isNextDataExist()) 
+			cout << list.getNextData() << " "; 
+		cout << "]\n";
+
+		return os;
 	}
 };
 

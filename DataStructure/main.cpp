@@ -24,10 +24,14 @@ public:
 	}
 };
 
+int order(const OrderedString& s1, const OrderedString& s2)
+{
+	return std::strcmp(s1.str.c_str(), s2.str.c_str());
+}
+
 int main()
 {
-	List<OrderedString> list;
-
+	List<OrderedString> list(order);
 	OrderedString words[] = {
 		{"capacity",	1},
 		{"lower",		2},
@@ -50,11 +54,7 @@ int main()
 		else
 			list.addLast(words[i]);
 
-	while (list.isNextDataExist())
-	{
-		cout << list.getNextData() << " ";
-	}
-	cout << "\n\n";
+	cout << list << endl;
 
 	list.setIterLast();
 	while (list.isPrevDataExist())
@@ -62,6 +62,15 @@ int main()
 		list.getPrevData();
 		list.printIterNode();
 	}
+
+	list.setIterFirst();
+	while (list.isNextDataExist())
+	{
+		if (list.getNextData().str == "medic")
+			list.removeAccessedData();
+	}
+
+	cout << list << endl;
 
 	return 0;
 }  
