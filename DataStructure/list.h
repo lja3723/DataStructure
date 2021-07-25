@@ -239,6 +239,11 @@ public:
 		return removedData;
 	}
 
+	void removeData(Elem data)
+	{
+
+	}
+
 	void setIterFirst()		{ iter = head; }
 	void setIterLast()		{ iter = tail; }
 	bool isNextDataExist() { return iter->getNext() != tail && iter != tail; }
